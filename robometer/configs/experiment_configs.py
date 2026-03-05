@@ -5,7 +5,7 @@ This file contains all the dataclass configurations that can be reused
 across different training scripts.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from typing import Optional, Dict, Any, List
 from transformers import PretrainedConfig
 
@@ -536,6 +536,8 @@ class ExperimentConfig:
             self.loss = LossConfig(**self.loss)
 
         if isinstance(self.model, dict):
+            valid_model_keys = {f.name for f in fields(ModelConfig)}
+            self.model = {k: v for k, v in self.model.items() if k in valid_model_keys}
             self.model = ModelConfig(**self.model)
 
         if isinstance(self.peft, dict):
