@@ -147,6 +147,12 @@ def main() -> None:
         help="Threshold for binary success in plot (default: 0.5)",
     )
     parser.add_argument("--out", default=None, help="Output path for rewards .npy (default: <video_stem>_rewards.npy)")
+    parser.add_argument(
+        "--rewardscope_json_file",
+        required=True,
+        default=None,
+        help="Path to a RewardScope JSON file. Reads 'num_frames' from it, resamples rewards, and writes 'robometer.progress_scores' back.",
+    )
     args = parser.parse_args()
 
     video_path = Path(args.video)
@@ -168,6 +174,18 @@ def main() -> None:
     np.save(str(out_path), rewards)
     success_path = out_path.with_name(out_path.stem + "_success_probs.npy")
     np.save(str(success_path), success_probs)
+
+    if args.rewardscope_json_file is not None and rewards.size > 0:
+        rs_path = Path(args.rewardscope_json_file)
+        with rs_path.open("r") as f:
+            rs_data = json.load(f)
+        num_frames_rewardscope = int(rs_data["num_frames"])
+        sample_indices = np.linspace(0, rewards.size - 1, num_frames_rewardscope)
+        rewardscope_rewards = np.interp(sample_indices, np.arange(rewards.size), rewards).tolist()
+        rs_data["robometer"] = {"model": args.model_path, "progress_scores": rewardscope_rewards}
+        with rs_path.open("w") as f:
+            json.dump(rs_data, f, indent=2)
+        print(f"Updated {rs_path} with robometer.progress_scores ({num_frames_rewardscope} frames)")
 
     show_success = success_probs.size > 0 and success_probs.size == rewards.size
     success_binary = (success_probs > float(args.success_threshold)).astype(np.int32) if show_success else None
