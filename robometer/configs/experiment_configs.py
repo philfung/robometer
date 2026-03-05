@@ -532,33 +532,34 @@ class ExperimentConfig:
     custom_eval: CustomEvaluationConfig = field(default_factory=CustomEvaluationConfig)
 
     def __post_init__(self):
+        def _filter(d: dict, cls) -> dict:
+            valid = {f.name for f in fields(cls)}
+            return {k: v for k, v in d.items() if k in valid}
+
         if isinstance(self.loss, dict):
-            self.loss = LossConfig(**self.loss)
+            self.loss = LossConfig(**_filter(self.loss, LossConfig))
 
         if isinstance(self.model, dict):
-            valid_model_keys = {f.name for f in fields(ModelConfig)}
-            self.model = {k: v for k, v in self.model.items() if k in valid_model_keys}
-            self.model = ModelConfig(**self.model)
+            self.model = ModelConfig(**_filter(self.model, ModelConfig))
 
         if isinstance(self.peft, dict):
-            self.peft = PEFTConfig(**self.peft)
+            self.peft = PEFTConfig(**_filter(self.peft, PEFTConfig))
 
         if isinstance(self.data, dict):
-            self.data.pop("roboarena_partial_success_threshold", None)
-            self.data = DataConfig(**self.data)
+            self.data = DataConfig(**_filter(self.data, DataConfig))
 
         if isinstance(self.training, dict):
-            self.training = TrainingConfig(**self.training)
+            self.training = TrainingConfig(**_filter(self.training, TrainingConfig))
 
         if isinstance(self.logging, dict):
-            self.logging = LoggingConfig(**self.logging)
+            self.logging = LoggingConfig(**_filter(self.logging, LoggingConfig))
 
         # Handle nested SaveBestConfig in LoggingConfig
         if hasattr(self.logging, "save_best") and isinstance(self.logging.save_best, dict):
-            self.logging.save_best = SaveBestConfig(**self.logging.save_best)
+            self.logging.save_best = SaveBestConfig(**_filter(self.logging.save_best, SaveBestConfig))
         elif self.logging.save_best is None:
             # Set default SaveBestConfig if not provided
             self.logging.save_best = SaveBestConfig()
 
         if isinstance(self.custom_eval, dict):
-            self.custom_eval = CustomEvaluationConfig(**self.custom_eval)
+            self.custom_eval = CustomEvaluationConfig(**_filter(self.custom_eval, CustomEvaluationConfig))
