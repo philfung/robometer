@@ -7,7 +7,7 @@ name = "robometer"
 version = "0.0.1" # You can update this as you release new versions
 description = "Robometer: scalable reward modeling with progress and preference"
 readme = "README.md"
-requires-python = "==3.10.*" # Based on your GitHub repo's setup
+requires-python = ">=3.10" # Relaxed to support Python 3.12+
 authors = [
     { name = "Anthony Liang", email = "aliang80@usc.edu" }
 ]
@@ -43,7 +43,7 @@ dependencies = [
     "pillow>=9.0.0",
     "ffmpeg",
     "termcolor>=3.1.0",
-    "qwen-vl-utils[decord]==0.0.14",
+    "qwen-vl-utils==0.0.14",
     "fastapi>=0.116.1",
     "uvicorn>=0.35.0",
     "requests>=2.32.4",
@@ -58,26 +58,20 @@ dependencies = [
     "einops>=0.8.0",
     "num2words",
     "seaborn",
-    "bitsandbytes",
     "torch==2.8.0",  # Required for Qwen models, xformers, and modern transformers. Use CUDA build on Linux via tool.uv.sources
     "torchvision",
     "moviepy",
     "wandb[media]",
-    "torchcodec",
-    "decord>=0.6.0",
-    "unsloth>=2025.10",
+    "torchcodec; sys_platform == 'linux'",
+    "unsloth>=2025.10; sys_platform == 'linux'",
     "gymnasium>=1.2.2",
     "metaworld>=3.0.0",
     "loguru>=0.7.3",
-    "xformers==0.0.32.post2",
+    "xformers==0.0.32.post2; sys_platform == 'linux'",
     "tensorboard",
     "requests",
     "hydra-core",
     "omegaconf",
-    "tensorflow-datasets==4.9.2", # just for oxe and other tfds dataset uploading
-    "tensorflow==2.19", # just for oxe and other tfds dataset uploading
-    "tf-keras>=2.19.0", # just for oxe and other tfds dataset uploading
-    "protobuf<3.21", # just for oxe and other tfds dataset uploading
 
 ]
 
@@ -98,7 +92,14 @@ dev = [
     "ipywidgets",
 ]
 quantization = [
-    "bitsandbytes>=0.46.1",  # Linux/Windows only - for model quantization
+    "bitsandbytes>=0.46.1; sys_platform == 'linux' or sys_platform == 'win32'",  # Linux/Windows only - for model quantization
+]
+# TensorFlow stack - only needed for OXE / TFDS dataset uploading
+tfds = [
+    "tensorflow-datasets==4.9.2",
+    "tensorflow==2.19",
+    "tf-keras>=2.19.0",
+    "protobuf>=3.20,<4.0",
 ]
 # Standard Robometer/training installation (includes transformers and trl)
 robometer = [
@@ -135,6 +136,10 @@ allow-direct-references = true
 
 # Configuration for the 'uv' package manager
 [tool.uv]
+# Only resolve for Python < 3.14 to avoid numpy conflicts in vlac extra on newer Python
+environments = [
+    "python_version >= '3.10' and python_version < '3.13'",
+]
 # Declare that robometer and vlac optional dependencies are incompatible
 # They have conflicting trl and transformers version requirements
 conflicts = [

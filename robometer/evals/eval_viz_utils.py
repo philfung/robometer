@@ -9,7 +9,7 @@ import logging
 import tempfile
 import numpy as np
 import matplotlib.pyplot as plt
-import decord
+import cv2
 
 logger = logging.getLogger(__name__)
 
@@ -157,32 +157,24 @@ def extract_frames(video_path: str, fps: float = 1.0, max_frames: int = 64) -> n
         return None
 
     try:
-        # decord.VideoReader can handle both local files and URLs
-        vr = decord.VideoReader(video_path, num_threads=1)
-        total_frames = len(vr)
+        cap = cv2.VideoCapture(video_path)
+        if not cap.isOpened():
+            logger.error(f"Could not open video: {video_path}")
+            return None
 
-        # Determine native FPS; fall back to a reasonable default if unavailable
-        try:
-            native_fps = float(vr.get_avg_fps())
-        except Exception:
-            native_fps = 1.0
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        native_fps = cap.get(cv2.CAP_PROP_FPS) or 1.0
 
-        # If user-specified fps is invalid or None, default to native fps
         if fps is None or fps <= 0:
             fps = native_fps
 
-        # Compute how many frames we want based on desired fps
-        # num_frames ≈ total_duration * fps = total_frames * (fps / native_fps)
         if native_fps > 0:
             desired_frames = int(round(total_frames * (fps / native_fps)))
         else:
             desired_frames = total_frames
 
-        # Clamp to [1, total_frames]
         desired_frames = max(1, min(desired_frames, total_frames))
 
-        # IMPORTANT: Cap at max_frames to prevent memory issues
-        # This is critical when fps is high or videos are long
         if desired_frames > max_frames:
             logger.warning(
                 f"Requested {desired_frames} frames but capping at {max_frames} "
@@ -191,15 +183,24 @@ def extract_frames(video_path: str, fps: float = 1.0, max_frames: int = 64) -> n
             )
             desired_frames = max_frames
 
-        # Evenly sample indices to match the desired number of frames
         if desired_frames == total_frames:
             frame_indices = list(range(total_frames))
         else:
             frame_indices = np.linspace(0, total_frames - 1, desired_frames, dtype=int).tolist()
 
-        frames_array = vr.get_batch(frame_indices).asnumpy()  # Shape: (T, H, W, C)
-        del vr
-        return frames_array
+        frames = []
+        for idx in frame_indices:
+            cap.set(cv2.CAP_PROP_POS_FRAMES, int(idx))
+            ret, frame = cap.read()
+            if ret:
+                frames.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        cap.release()
+
+        if not frames:
+            logger.error(f"No frames extracted from {video_path}")
+            return None
+
+        return np.array(frames, dtype=np.uint8)  # Shape: (T, H, W, C)
     except Exception as e:
         logger.error(f"Error extracting frames from {video_path}: {e}")
         return None
