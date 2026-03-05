@@ -11,6 +11,10 @@ Changes that were made:
 
 ## Usage ##
 ```
+git clone https://github.com/philfung/robometer
+
+cd robometer
+
 uv sync
 
 . ./venv/bin/activate
