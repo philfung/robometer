@@ -4,7 +4,12 @@ Shared setup utilities for RBM training.
 This file contains setup functions that can be reused across different training scripts.
 """
 
-from unsloth import FastVisionModel
+try:
+    from unsloth import FastVisionModel
+    HAS_UNSLOTH = True
+except ImportError:
+    FastVisionModel = None
+    HAS_UNSLOTH = False
 
 import re
 import os
@@ -13,7 +18,10 @@ from typing import Tuple, Optional, Any
 import torch
 from safetensors.torch import load_file
 from peft import LoraConfig, get_peft_model, PeftModel
-import bitsandbytes as bnb
+try:
+    import bitsandbytes as bnb
+except ImportError:
+    bnb = None
 from huggingface_hub import HfApi
 from transformers import (
     AutoImageProcessor,
