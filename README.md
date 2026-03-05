@@ -10,7 +10,6 @@ Changes that were made:
 2. only the inference tool [example_inference_local.py](scripts/example_inference_local.py) works, and it populates its results into the Rewardscope visualization directory.
 
 ## Usage ##
-Install
 ```
 uv sync
 
