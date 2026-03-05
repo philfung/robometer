@@ -708,7 +708,7 @@ def setup_model_and_processor(
     logger.info(f"Using torch dtype: {torch_dtype}")
 
     # Check if unsloth should be used
-    use_unsloth = cfg.use_unsloth and "Qwen" in cfg.base_model_id
+    use_unsloth = cfg.use_unsloth and "Qwen" in cfg.base_model_id and HAS_UNSLOTH
 
     if use_unsloth:
         logger.info("Unsloth mode enabled for faster training")
