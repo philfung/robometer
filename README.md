@@ -7,7 +7,7 @@ Changes that were made:
 
 1. It now runs (only) on Mac.  It was originally coded for Linux.
 
-2. only the inference tool [example_inference_local.py](scripts/example_inference_local.py) works, and it populates its results into the Rewardscope visualization directory.
+2. The inference tool [example_inference_local.py](scripts/example_inference_local.py) computes the Robometer reward populates and updates the Rewardscope visualization.
 
 ## Usage ##
 ```
@@ -23,7 +23,7 @@ Inputs:
 
 Outputs:
 
-After running, `my_manipulation_task.json` will now be updated with a Robometer reward.
+After running, `my_manipulation_task.json` will now be updated with the Robometer reward and is ready to be visualized in Rewardscope.
 
 
 # *###### end of EDIT ######* #
