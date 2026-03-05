@@ -1,11 +1,11 @@
 # Robometer: Scaling General-Purpose Robotic Reward Models via Trajectory Comparisons
 
 
-### EDIT: This is a fork of the [Robometer](https://github.com/robometer/robometer) codebase so it can be run for the [Rewardscope](https://github.com/philfung/reward-scope) rewards comparison webtool.  ###
+# *###### EDIT: This is a fork of the [Robometer](https://github.com/robometer/robometer) codebase so it can be run for the [Rewardscope](https://github.com/philfung/reward-scope) rewards comparison webtool. ######* #
 
 Changes that were made:
 
-1. it now runs (only) on Mac (originally coded for Linux) 
+1. It now runs (only) on Mac.  It was originally coded for Linux.
 
 2. only the inference tool [example_inference_local.py](scripts/example_inference_local.py) works, and it populates its results into the Rewardscope visualization directory.
 
@@ -26,6 +26,8 @@ Outputs:
 
 After running, `my_manipulation_task.json` will now be updated with a Robometer reward.
 
+
+# *###### end of EDIT ######* #
 ---
 
 [![arXiv](https://img.shields.io/badge/arXiv-2603.02115-b31b1b.svg)](https://arxiv.org/abs/2603.02115)
