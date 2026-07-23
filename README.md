@@ -24,6 +24,7 @@ python scripts/example_inference_local.py --model-path aliangdw/Robometer-4B --v
 Inputs:
 * `my_manipulation_task.mp4`: your manipulation video vile
 * `../reward-scope/viewer_files/my_manipulation_task.json`: the location of your local Rewardscope repo, with the existing file `my_manipulation_task.json`.
+* `create a tower of 5 cubes`: the text command
 
 Outputs:
 
